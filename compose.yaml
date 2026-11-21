@@ -9,7 +9,7 @@ services:
   backend:
     build: ./backend
     environment:
-      DATABASE_URL: "postgresql://appuser:wrongpass@localhost:5432/appdb"
+      DATABASE_URL: "postgresql://appuser:rescue123@db:5432/appdb"
     depends_on:
       - db
 
