@@ -19,3 +19,7 @@ services:
       POSTGRES_USER: appuser
       POSTGRES_PASSWORD: rescue123
       POSTGRES_DB: appdb
+    volumes:
+     - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:     
