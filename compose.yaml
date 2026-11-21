@@ -9,16 +9,16 @@ services:
   backend:
     build: ./backend
     environment:
-      DATABASE_URL: "postgresql://appuser:rescue123@db:5432/appdb"
+      DATABASE_URL: ${DATABASE_URL}
     depends_on:
       - db
 
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: appuser
-      POSTGRES_PASSWORD: rescue123
-      POSTGRES_DB: appdb
+     POSTGRES_USER: ${POSTGRES_USER}
+     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+     POSTGRES_DB: ${POSTGRES_DB}
     volumes:
      - postgres_data:/var/lib/postgresql/data
 volumes:
