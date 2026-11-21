@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ACI606 Docker Rescue</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+    h1 { margin-bottom: 6px; }
+    .status { padding: 10px 12px; background: #f2f2f2; border-radius: 8px; margin: 16px 0; }
+    form { display: flex; gap: 8px; margin: 20px 0; }
+    input { flex: 1; padding: 10px; }
+    button { padding: 10px 16px; cursor: pointer; }
+    li { margin: 8px 0; }
+    code { background: #f5f5f5; padding: 2px 4px; }
+  </style>
+</head>
+<body>
+  <h1>ACI606 Docker Rescue</h1>
+  <p>Aplicación multi-contenedor para diagnóstico y reparación.</p>
+
+  <div class="status" id="status">Comprobando backend...</div>
+
+  <form id="itemForm">
+    <input id="name" placeholder="Nombre del registro" required />
+    <button type="submit">Guardar</button>
+  </form>
+
+  <h2>Registros</h2>
+  <ul id="items"></ul>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const itemsEl = document.getElementById('items');
+    const form = document.getElementById('itemForm');
+    const nameInput = document.getElementById('name');
+
+    async function loadItems() {
+      try {
+        const health = await fetch('/api/health');
+        if (!health.ok) throw new Error('Backend no saludable');
+        const healthData = await health.json();
+        statusEl.textContent = `Backend: ${healthData.status} | DB: ${healthData.database}`;
+
+        const res = await fetch('/api/items');
+        if (!res.ok) throw new Error('No se pudo consultar items');
+        const data = await res.json();
+        itemsEl.innerHTML = '';
+        for (const item of data) {
+          const li = document.createElement('li');
+          li.textContent = `#${item.id} - ${item.name}`;
+          itemsEl.appendChild(li);
+        }
+      } catch (err) {
+        statusEl.textContent = `Error: ${err.message}`;
+      }
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const name = nameInput.value.trim();
+      if (!name) return;
+
+      const res = await fetch('/api/items', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name})
+      });
+
+      if (res.ok) {
+        nameInput.value = '';
+        await loadItems();
+      } else {
+        statusEl.textContent = 'Error al guardar el registro';
+      }
+    });
+
+    loadItems();
+  </script>
+</body>
+</html>
